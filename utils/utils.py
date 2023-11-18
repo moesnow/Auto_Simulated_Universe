@@ -862,7 +862,7 @@ class UniverseUtils:
                 ds = nds
                 dls.append(ds)
                 dtm.append(time.time())
-                while dtm[0] < time.time() - 1.5 + sft * 1:
+                while dtm[0] < time.time() - 1.7 + sft * 1:
                     dtm = dtm[1:]
                     dls = dls[1:]
             log.info(f"进入新地图或者进入战斗 {nds}")
@@ -887,7 +887,7 @@ class UniverseUtils:
                     self.press("w", 1.6)
                     pyautogui.click()
             if type == 3:
-                for i in range(6):
+                for i in range(9):
                     self.get_screen()
                     if self.check("f", 0.4443, 0.4417, mask="mask_f1"):
                         log.info("大图识别到传送点")
@@ -899,7 +899,7 @@ class UniverseUtils:
                     if self.isrun():
                         if i in [0,4]:
                             self.move_to_end()
-                        self.press('w', 0.45)
+                        self.press('w', 0.5)
                         time.sleep(0.2)
             # 离目标点挺近了，准备找下一个目标点
             elif nds <= 20:
@@ -1283,11 +1283,15 @@ class UniverseUtils:
                     iters = 0
                     while self.check("z",0.5906,0.9537,mask="mask_z",threshold=0.95) and not self._stop:
                         iters+=1
-                        if iters>10:
+                        if iters>4:
                             break
                         pyautogui.click()
-                        self.press('d',0.9)
-                        self.press('a',0.45)
+                        if iters == 2:
+                            time.sleep(0.6)
+                            self.press('d',0.85)
+                            self.press('a',0.3)
+                        else:
+                            time.sleep(0.9)
                         self.get_screen()
                     self.mini_state+=2
                     break
