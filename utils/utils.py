@@ -78,6 +78,7 @@ class UniverseUtils:
         self.check_bonus = 1
         self._stop = False
         self.stop_move = 0
+        self.move = 0
         self.multi = config.multi
         self.diffi = config.diffi
         self.fate = config.fate
@@ -786,13 +787,14 @@ class UniverseUtils:
             dls = [100000]
             dtm = [time.time()]
             t = 2
+            c = 0
             for i in range(3000):
                 if self._stop == 1:
                     keyops.keyUp("w")
                     return
                 ctm = time.time()
                 bw_map = self.get_bw_map()
-                self.get_loc(bw_map, fbw=1, offset=self.get_offset(2+(i<=2)), rg=10+6*(i<=2))
+                self.get_loc(bw_map, fbw=1, offset=self.get_offset(2+(c<=2)), rg=10+6*(c<=2))
                 self.get_real_loc(2)
                 ang = (
                     math.atan2(loc[0] - self.real_loc[0], loc[1] - self.real_loc[1])
@@ -822,18 +824,19 @@ class UniverseUtils:
                         self.press("s", 0.35)
                         self.press(ts[t], 0.2*random.randint(1,3))
                         self.press("w", 0.3)
-                        self.stop_move = 0
+                        self.move = 1
+                        self.get_screen()
                         threading.Thread(target=self.keep_move).start()
-                        bw_map = self.get_bw_map()
+                        bw_map = self.get_bw_map(gs=0)
                         self.get_loc(bw_map, rg=28, fbw=1)
-                        local_screen = self.get_local(0.9333, 0.8657, shape)
-                        self.ang = 360 - self.get_now_direc(local_screen) - 90
-                        self.stop_move = 1
+                        self.get_real_loc()
+                        self.move = 0
                         time.sleep(0.12)
                         t -= 1
                         dls = [100000]
                         dtm = [time.time()]
                         self.press('shift')
+                        c = 0
                         sft = 1
                     else:
                         keyops.keyUp("w")
@@ -868,9 +871,10 @@ class UniverseUtils:
                 ds = nds
                 dls.append(ds)
                 dtm.append(time.time())
-                while dtm[0] < time.time() - 1.7 + sft * 1:
+                while dtm[0] < time.time() - 1.7 + sft * 1 - self.slow * 0.4:
                     dtm = dtm[1:]
                     dls = dls[1:]
+                c += 1
             log.info(f"进入新地图或者进入战斗 {nds}")
             if type == 0:
                 self.lst_tm = time.time()
@@ -917,9 +921,12 @@ class UniverseUtils:
                     pass
 
     def keep_move(self):
-        op = 'wasd'
-        while not self.stop_move:
-            self.press(op[random.randint(0,3)], 0.1)
+        op = 'ws'
+        i = 0
+        while self.move:
+            self.press(op[i], 0.05)
+            time.sleep(0.08)
+            i ^= 1
         keyops.keyDown("w")
 
     # 视角转动x度
@@ -1025,6 +1032,8 @@ class UniverseUtils:
         self.real_loc = (int(x+10+dx),int(y+dy))
 
     def get_offset(self,delta=1):
+        if self.slow:
+            delta /= 2
         pi = 3.141592653589
         dx, dy = sin(self.ang/180*pi), cos(self.ang/180*pi)
         return (delta*dx*3,delta*dy*3)
