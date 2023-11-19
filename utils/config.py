@@ -20,6 +20,7 @@ class Config:
         self.show_map_mode = 0
         self.debug_mode = 0
         self.speed_mode = 0
+        self.slow_mode = 0
         self.force_update = 0
         self.unlock = 0
         self.bonus = 0
@@ -63,6 +64,7 @@ class Config:
                     self.speed_mode = config['speed_mode']
                     self.force_update = config['force_update']
                     self.timezone = config['timezone']
+                    self.slow_mode = config['slow_mode']
                 except:
                     pass
             with open(os.path.join(self.abspath, self.text), "r", encoding="utf-8", errors='ignore') as f:
@@ -129,6 +131,7 @@ class Config:
                     "show_map_mode": self.show_map_mode,
                     "debug_mode": self.debug_mode,
                     "speed_mode": self.speed_mode,
+                    "slow_mode": self.slow_mode,
                     "force_update": self.force_update,
                     "timezone": self.timezone
                 },
