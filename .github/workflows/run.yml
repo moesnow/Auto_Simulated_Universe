@@ -2,8 +2,8 @@ name: Generate application
 on:
   workflow_dispatch:
   push:
-    paths:
-      - '**.py'
+    tags:
+      - "*"
 permissions:
   contents: write
 jobs:
