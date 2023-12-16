@@ -55,6 +55,8 @@ bonus in [0,1]：是否开启沉浸奖励
 
 speed in [0,1]：开启速通模式
 
+consumable in [0,1]：精英和首领战之前是否使用最左上角的消耗品
+
 debug in [0,1,2]：开启调试模式
 
 find in [0,1]：0为录图，1为跑图
@@ -74,12 +76,17 @@ config:
   show_map_mode: 0
   debug_mode: 0
   speed_mode: 0
+  use_consumable: 0
   slow_mode: 0
   force_update: 0
   timezone: Default
 prior:
   优先级信息，按需调整
 ```
+
+use_consumable：0代表不使用消耗品，1代表最终boss使用消耗品，2代表最后两个boss使用消耗品，3代表所有boss都使用消耗品
+
+自动使用第一个攻击/防御消耗品，可以收藏消耗品（星星标记）来改变背包中消耗品的顺序
 
 默认是哪个宇宙就会进哪个！如果你默认不是第6世界，记得先手动切到第6世界！
 

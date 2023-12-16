@@ -133,7 +133,11 @@ class UniverseUtils:
                 win32gui.ReleaseDC(hwnd, dc)
                 scale_x = dpi_x / 96
                 scale_y = dpi_y / 96
-                self.scale = ctypes.windll.user32.GetDpiForWindow(hwnd) / 96.0
+                try:
+                    self.scale = ctypes.windll.user32.GetDpiForWindow(hwnd) / 96.0
+                except:
+                    log.info('DPI获取失败')
+                    self.scale = 1.0
                 log.info(
                     "DPI: " + str(self.scale) + " A:" + str(int(self.multi * 100) / 100)
                 )
@@ -178,6 +182,58 @@ class UniverseUtils:
             raise ValueError("正在退出")
         time.sleep(t)
         keyops.keyUp(c)
+
+    # example: self.wait_fig(lambda:self.check("strange", 0.9417, 0.9481), 1.4)
+    def wait_fig(self, f, timeout=3):
+        tm=time.time()
+        while time.time()-tm<timeout:
+            if not f():
+                return 1
+            time.sleep(0.1)
+            self.get_screen()
+        return 0
+
+    def use_it(self, x, y):
+        if x != 1 or y != 1:
+            self.click((0.903 - 0.06 * (x - 1), 0.827 - 0.14 * (y - 1)))
+            time.sleep(0.5)
+        # 点击使用
+        self.click((0.154,0.088))
+        self.wait_fig(lambda:not self.check("yes1",0.3812,0.2926), 1.2)
+        # 点击确认
+        self.click((0.386,0.294))
+        r = self.wait_fig(lambda:not self.check("use_replace",0.5260,0.6935), 0.8)
+        if r:
+            # 覆盖效果
+            self.click((0.386,0.294))
+
+    # 使用x排，y列的消耗品
+    def use_consumable(self, x=1, y=1):
+        self.press("b")
+        if self.wait_fig(lambda:not self.check("use_atk",0.3677,0.0861), 3):
+            time.sleep(0.4)
+            self.click((0.3677,0.0861))
+            time.sleep(0.4)
+            self.get_screen()
+            if self.wait_fig(lambda:not self.check("use_star",0.8828,0.8648,threshold=0.9), 0.8):
+                self.use_it(x, y)
+                if self.wait_fig(lambda:not self.check("use_def",0.3198,0.0880), 2.2):
+                    time.sleep(0.4)
+                    self.click((0.3198,0.0880))
+                    time.sleep(0.4)
+                    self.get_screen()
+                    if self.wait_fig(lambda:not self.check("use_star",0.8828,0.8648,threshold=0.9), 0.6):
+                        self.use_it(x, y)
+                        self.wait_fig(lambda:not self.check("use_package",0.9417,0.9398), 2)
+                        time.sleep(0.3)
+                    self.press("esc")
+            else:
+                self.press("esc")
+        if not self.isrun():
+            for _ in range(3):
+                self.press("esc")
+                if self.wait_fig(lambda:not self.isrun(), 3):
+                    return
 
     def get_point(self, x, y):
         # 得到一个点的浮点表示
@@ -923,11 +979,12 @@ class UniverseUtils:
     def keep_move(self):
         op = 'ws'
         i = 0
-        while self.move:
+        while self.move and not self._stop:
             self.press(op[i], 0.05)
             time.sleep(0.08)
             i ^= 1
-        keyops.keyDown("w")
+        if not self._stop:
+            keyops.keyDown("w")
 
     # 视角转动x度
     def mouse_move(self, x, fine=1):
@@ -1153,7 +1210,7 @@ class UniverseUtils:
         upper = np.array([26, 100, 255])
         mask = cv.inRange(cvt, lower, upper)
         result = np.sum(mask)//255
-        return result > 180 and result < 280
+        return result > 100 and result < 280
     
     def isrun(self):
         scr = self.screen
@@ -1308,11 +1365,11 @@ class UniverseUtils:
                             break
                         pyautogui.click()
                         if iters == 2:
-                            time.sleep(0.6)
+                            time.sleep(0.9)
                             self.press('d',0.85)
                             self.press('a',0.3)
                         else:
-                            time.sleep(0.9)
+                            time.sleep(1.2)
                         self.get_screen()
                     self.mini_state+=2
                     break
