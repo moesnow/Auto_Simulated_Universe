@@ -76,7 +76,7 @@ def download_file(url, save_path):
 def start_download():
     popup.destroy()
     operation_label.config(text="下载中...")
-    download_url = f"https://ghproxy.com/https://github.com/CHNZYX/Auto_Simulated_Universe/releases/download/{info['tag_name']}/Auto_Simulated_Universe_{info['tag_name']}.zip"
+    download_url = f"https://github.moeyy.xyz/https://github.com/CHNZYX/Auto_Simulated_Universe/releases/download/{info['tag_name']}/Auto_Simulated_Universe_{info['tag_name']}.zip"
     save_path = "./archive.zip"
     t = threading.Thread(target=download_file, args=(download_url, save_path))
     t.start()
