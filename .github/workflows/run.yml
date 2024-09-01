@@ -32,21 +32,23 @@ jobs:
       - name: Generate program
         run: |
           venv\Scripts\activate
-          pyinstaller -D --distpath .\dist\ -i .\imgs\icon.ico --contents-directory libraries --add-binary "venv\Lib\site-packages\ppocronnx;ppocronnx" --uac-admin -n "gui" gui.py -y
-          pyinstaller -D --distpath .\dist\ -i .\imgs\iconl.png --contents-directory libraries --add-binary "venv\Lib\site-packages\ppocronnx;ppocronnx" --uac-admin -n "states" states.py -y
-          pyinstaller -D --distpath .\dist\ -i .\imgs\iconl.png --contents-directory libraries --add-binary "venv\Lib\site-packages\ppocronnx;ppocronnx" --uac-admin -n "align_angle" align_angle.py -y
+          pyinstaller -D --distpath .\dist\ -i .\imgs\icon.ico --contents-directory libraries --add-data "utils/models;utils/models" --uac-admin -n "gui" gui.py -y -w
+          pyinstaller -D --distpath .\dist\ -i .\imgs\iconl.png --contents-directory libraries --add-data "utils/models;utils/models" --uac-admin -n "diver" diver.py -y
+          pyinstaller -D --distpath .\dist\ -i .\imgs\iconl.png --contents-directory libraries --add-data "utils/models;utils/models" --uac-admin -n "simul" simul.py -y
           pyinstaller -D --distpath .\dist\ -i .\imgs\icon.png --contents-directory libraries --uac-admin -n "notif" notif.py -y -w
 
       - name: Move assets to dist directory
         run: |
           xcopy /E /Y ".\dist\gui\*" ".\dist\Auto_Simulated_Universe\"
-          xcopy /E /Y ".\dist\states\*" ".\dist\Auto_Simulated_Universe\"
-          xcopy /E /Y ".\dist\align_angle\*" ".\dist\Auto_Simulated_Universe\"
+          xcopy /E /Y ".\dist\diver\*" ".\dist\Auto_Simulated_Universe\"
+          xcopy /E /Y ".\dist\simul\*" ".\dist\Auto_Simulated_Universe\"
           xcopy /E /Y ".\dist\notif\*" ".\dist\Auto_Simulated_Universe\"
 
           xcopy /E /I /Y .\imgs\ .\dist\Auto_Simulated_Universe\imgs\
+          xcopy /E /I /Y .\actions\ .\dist\Auto_Simulated_Universe\actions\
           xcopy /Y .\README.md .\dist\Auto_Simulated_Universe\
           xcopy /Y .\info_example.yml .\dist\Auto_Simulated_Universe\
+          xcopy /Y .\info_example_old.yml .\dist\Auto_Simulated_Universe\
 
       - name: Upload artifact
         if: startsWith(github.ref, 'refs/heads/') || startsWith(github.ref, 'refs/pull/')
