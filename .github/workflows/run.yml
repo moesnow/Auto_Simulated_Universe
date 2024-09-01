@@ -14,13 +14,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
-          submodules: 'false'
+          submodules: "false"
 
       - name: Set up python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11.6'
-          cache: 'pip'
+          python-version: "3.12"
+          cache: "pip"
 
       - name: Install dependencies
         run: |
@@ -67,6 +67,5 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-           ./dist/Auto_Simulated_Universe.zip
+            ./dist/Auto_Simulated_Universe.zip
           prerelease: false
-
