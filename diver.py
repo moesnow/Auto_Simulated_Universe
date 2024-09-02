@@ -222,6 +222,7 @@ class DivergentUniverse(UniverseUtils):
         print('saved_num:', self.saved_num, 'save_cnt:', config.save_cnt)
         if self.saved_num < config.save_cnt:
             self.saved_num += 1
+            time.sleep(2)
             self.click_position([1204, 959])
             time.sleep(1)
         else:
