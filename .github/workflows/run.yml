@@ -52,10 +52,11 @@ jobs:
 
       - name: Upload artifact
         if: startsWith(github.ref, 'refs/heads/') || startsWith(github.ref, 'refs/pull/')
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Auto_Simulated_Universe
           path: .\dist\Auto_Simulated_Universe\
+          compression-level: 0 # no compression
 
       - name: Create zip archive
         if: startsWith(github.ref, 'refs/tags/')
