@@ -1,0 +1,71 @@
+name: Generate application
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "*"
+permissions:
+  contents: write
+jobs:
+  build:
+    name: Build
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          submodules: "false"
+
+      - name: Set up python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m venv venv
+          venv\Scripts\activate
+          pip install --upgrade pip
+          pip install -r requirements.txt pyinstaller
+
+      - name: Generate program
+        run: |
+          venv\Scripts\activate
+          pyinstaller -D --distpath .\dist\ -i .\imgs\icon.ico --contents-directory libraries --add-data "utils/models;utils/models" --uac-admin -n "gui" gui.py -y -w
+          pyinstaller -D --distpath .\dist\ -i .\imgs\iconl.png --contents-directory libraries --add-data "utils/models;utils/models" --uac-admin -n "diver" diver.py -y
+          pyinstaller -D --distpath .\dist\ -i .\imgs\iconl.png --contents-directory libraries --add-data "utils/models;utils/models" --uac-admin -n "simul" simul.py -y
+          pyinstaller -D --distpath .\dist\ -i .\imgs\icon.png --contents-directory libraries --uac-admin -n "notif" notif.py -y -w
+
+      - name: Move assets to dist directory
+        run: |
+          xcopy /E /Y ".\dist\gui\*" ".\dist\Auto_Simulated_Universe\"
+          xcopy /E /Y ".\dist\diver\*" ".\dist\Auto_Simulated_Universe\"
+          xcopy /E /Y ".\dist\simul\*" ".\dist\Auto_Simulated_Universe\"
+          xcopy /E /Y ".\dist\notif\*" ".\dist\Auto_Simulated_Universe\"
+
+          xcopy /E /I /Y .\imgs\ .\dist\Auto_Simulated_Universe\imgs\
+          xcopy /E /I /Y .\actions\ .\dist\Auto_Simulated_Universe\actions\
+          xcopy /Y .\README.md .\dist\Auto_Simulated_Universe\
+          xcopy /Y .\info_example.yml .\dist\Auto_Simulated_Universe\
+          xcopy /Y .\info_example_old.yml .\dist\Auto_Simulated_Universe\
+
+      - name: Upload artifact
+        if: startsWith(github.ref, 'refs/heads/') || startsWith(github.ref, 'refs/pull/')
+        uses: actions/upload-artifact@v3
+        with:
+          name: Auto_Simulated_Universe
+          path: .\dist\Auto_Simulated_Universe\
+
+      - name: Create zip archive
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          powershell Compress-Archive -Path .\dist\Auto_Simulated_Universe\ -DestinationPath .\dist\Auto_Simulated_Universe.zip -Force
+
+      - name: Create release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            ./dist/Auto_Simulated_Universe.zip
+          prerelease: false

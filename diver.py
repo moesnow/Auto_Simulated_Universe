@@ -220,15 +220,14 @@ class DivergentUniverse(UniverseUtils):
             keyops.keyUp(i)
 
     def save_or_exit(self):
-        # print('saved_num:', self.saved_num, 'save_cnt:', config.save_cnt)
-        # if self.saved_num < config.save_cnt:
-        #     time.sleep(1.5)
-        #     self.saved_num += 1
-        #     self.click_position([1204, 959])
-        #     time.sleep(1)
-        # else:
-        #     self.click_position([716, 959])
-        self.click_position([716, 959])
+        print('saved_num:', self.saved_num, 'save_cnt:', config.save_cnt)
+        if self.saved_num < config.save_cnt:
+            self.saved_num += 1
+            time.sleep(2)
+            self.click_position([1204, 959])
+            time.sleep(1)
+        else:
+            self.click_position([716, 959])
         time.sleep(1.5)
 
     def select_save(self):
