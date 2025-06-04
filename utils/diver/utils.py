@@ -28,6 +28,9 @@ import threading
 from utils.log import my_print as print
 from utils.log import print_exc
 
+from pathlib import Path
+from datetime import datetime
+
 
 def notif(title, msg, cnt=None):
     # if '完成' in title:
@@ -260,10 +263,11 @@ class UniverseUtils:
     def click_position(self, position):
         self.click_box([position[0], position[0], position[1], position[1]])
 
-    def click_text(self, text, env=None, click=1):
+    def click_text(self, text, click=1):
         img = self.get_screen()
-        pt = self.ts.find_text(img, text, env=env)
-        if pt is not None:
+        pt = self.ts.find_with_text([text])
+        if pt:
+            pt = pt[0]['box']
             if click:
                 self.click(
                     (
@@ -410,6 +414,17 @@ class UniverseUtils:
             self.last_info = path
         return max_val > threshold
     
+    def click_img(self, path, threshold=0.95):
+        path = self.format_path(path)
+        target = cv.imread(path)
+        result = cv.matchTemplate(self.screen, target, cv.TM_CCORR_NORMED)
+        min_val, max_val, min_loc, max_loc = cv.minMaxLoc(result)
+        if max_val > threshold:
+            x, y = max_loc
+            self.click_position((x + target.shape[1]//2, y + target.shape[0]//2))
+            return 1
+        return 0
+    
     def check_box(self, path, box=[0,1920,0,1080], threshold=0.96):
         path = self.format_path(path)
         target = cv.imread(path)
@@ -534,6 +549,28 @@ class UniverseUtils:
             Text = win32gui.GetWindowText(hwnd)
         self.screen = self.sct.grab(self.x0, self.y0)
         return self.screen
+    
+    def save_screen(self, save_path=r"D:\debug", name=""):
+        """
+        获取截图并保存到指定路径
+        :param save_path: 保存截图的路径
+        """
+        # 获取截图
+        sc = self.screen
+
+        # 如果截图是 numpy.ndarray 类型，将其转换为 PIL.Image
+        if isinstance(sc, np.ndarray):
+            sc = Image.fromarray(sc)
+
+        # 确保路径存在
+        save_path = Path(save_path)
+        save_path.mkdir(parents=True, exist_ok=True)
+
+        # 构造文件名，使用当前时间戳
+        filename = name + datetime.now().strftime("%Y%m%d_%H%M%S") + ".png"
+
+        # 保存截图
+        sc.save(save_path / filename)
 
     # 移动视角，获得小地图中不变的部分（白线、灰块）
     def take_fine_minimap(self, n=5, dt=0.01, dy=200):
@@ -1592,11 +1629,11 @@ class UniverseUtils:
 
     def get_text_position(self, clean=0):
         if self.event_mask is None:
-            self.event_mask = (cv.imread('imgs/divergent/event_mask.jpg', cv.IMREAD_GRAYSCALE) > 70)[:487]
-            self.event_mask_clean = (cv.imread('imgs/divergent/event_mask_clean.jpg', cv.IMREAD_GRAYSCALE) > 70)[:487]
-        scr = self.screen[:487]
-        mask = np.zeros((487, scr.shape[1]), dtype=np.uint8)
-        mask_zero = np.zeros((487, scr.shape[1]), dtype=np.uint8)
+            self.event_mask = (cv.imread('imgs/divergent/event_mask.jpg', cv.IMREAD_GRAYSCALE) > 70)[:497]
+            self.event_mask_clean = (cv.imread('imgs/divergent/event_mask_clean.jpg', cv.IMREAD_GRAYSCALE) > 70)[:497]
+        scr = self.screen[:497]
+        mask = np.zeros((497, scr.shape[1]), dtype=np.uint8)
+        mask_zero = np.zeros((497, scr.shape[1]), dtype=np.uint8)
         mask[((scr.max(axis=-1)-scr.min(axis=-1)) < 3)&(scr.max(axis=-1)>247)] = 255
         mask_zero[((scr.max(axis=-1)-scr.min(axis=-1)) < 3)&(scr.max(axis=-1)<21)] = 255
         kernel = np.ones((10, 30), np.uint8)
@@ -1632,4 +1669,6 @@ class UniverseUtils:
             if w * h >= 4 and abs(y - yy) < 20:
                 res.append((x+w//2,y+h//2))
         res = sorted(res, key=lambda x: x[0])
+        if len(res) == 2 and res[1][0]-res[0][0] < 150:
+            res = [((res[0][0]+res[1][0])//2,res[0][1])]
         return res
