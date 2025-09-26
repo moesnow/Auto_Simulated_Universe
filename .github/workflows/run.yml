@@ -68,7 +68,7 @@ jobs:
         with:
           files: |
             ./dist/Auto_Simulated_Universe.zip
-          # prerelease: false
+          prerelease: false
           make_latest: true
 
       - name: Trigger MirrorChyanUploading
