@@ -9,6 +9,10 @@ jobs:
   build:
     name: Build
     runs-on: windows-latest
+    env:
+      PYTHONHASHSEED: 0
+      SOURCE_DATE_EPOCH: 315532800
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -18,7 +22,7 @@ jobs:
       - name: Set up python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.12"
+          python-version: "3.12.10"
           cache: "pip"
 
       - name: Install dependencies
